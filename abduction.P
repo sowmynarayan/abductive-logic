@@ -1,0 +1,11 @@
+% Function to get abduction for given abducible.
+getAbduction(G, L) :- abduct(G, L).
+
+abduct(true, []).
+abduct((G1, G2), L) :- abduct(G1, L1), abduct(G2, L2), basics:append(L1, L2, L), !.
+abduct(G, L) :- getBody(G, B), ((B = []) -> basics:append([G], [], L); abduct(B, L)).
+
+% Function to get body for a given goal.
+getBody(G, B) :- clause(G, B).
+getBody(_, []).
+

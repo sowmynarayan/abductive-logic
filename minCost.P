@@ -1,0 +1,32 @@
+% Assumption: MAXIMUM possible cost for a single literal can be 1. 
+% Assumption: cost(t_not(X)) is 1 - cost(X), where X is any positive literal.
+
+% Find the minimum cost for corresponding abducible. Initially, assume the minim cost is 1000.
+findMinCost(Abducible, Answer, MinCost) :- bagof(Cost, findAllCost(Abducible, Answer, Cost), Costs), minimum(Costs, 1000, MinCost), !.
+
+% Function to find minimum cost from a list of costs.
+minimum([], Min, Min).
+minimum([X|Xs], Acc, Min) :- ((X @< Acc) -> Acc1 = X; Acc1 = Acc), minimum(Xs, Acc1, Min).
+
+% Function to find all possible costs for given abducible.
+findAllCost(G, L, C) :- getAbduction(G, L), computeCost(L, C).
+
+% Function to get abduction for given abducible.
+getAbduction(G, L) :- abduct(G, L).
+
+abduct(true, []).
+abduct((G1, G2), L) :- abduct(G1, L1), abduct(G2, L2), basics:append(L1, L2, L), !.
+abduct(G, L) :- getBody(G, B), ((B = []) -> basics:append([G], [], L); abduct(B, L)).
+
+% Function to get body for a given goal.
+getBody(G, B) :- clause(G, B).
+getBody(_, []).
+
+% Function to compute total cost for given list of literals.
+computeCost([], 0).
+computeCost([X|Xs], C) :- getCost(X, C1), computeCost(Xs, C2), C is C1+C2.
+
+% Function to fetch individual cost for literal. In case of t_not(positiveLiteral),
+% cost is computed as 1 - cost(positiveLiteral)
+getCost(t_not(X), C) :- cost(X, C1), C is 1-C1, !.
+getCost(X, C) :- cost(X, C).

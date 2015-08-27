@@ -1,0 +1,16 @@
+citizen(X) :- t_not(bornInUSA(X)), t_resident(X), naturalized(X).
+citizen(X) :- t_not(bornInUSA(X)), mother(X, Y), citizen(Y), registered(Y).
+citizen(X) :- bornInUSA(X).
+
+%% Define integrity constraints below.
+
+citizen(mary).
+mother(john, mary).
+
+%% Define individual cost for literals below.
+
+cost(bornInUSA(_), 0.5).
+cost(t_resident(_), 0.3).
+cost(naturalized(_), 0.4).
+cost(mother(_,_), 0.7).
+cost(registered(_), 0.6).
